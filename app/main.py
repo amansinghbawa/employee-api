@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 
 from app.database import get_connection
 from app.models import Employee
@@ -18,6 +18,8 @@ def list_employees(
     department: Optional[str] = None,
     skills: Optional[str] = None,
     min_salary: Optional[str] = None,
+    # FIX: declare as int with ge=0 so FastAPI returns 422 for "abc" or negative values instead of a 500
+    # min_salary: Optional[int] = Query(None, ge=0),
 ):
     """
     Retrieve employees, optionally filtered by:
@@ -35,9 +37,11 @@ def list_employees(
 
     if skills:
         skill_list = [s.strip() for s in skills.split(",")]
-        query += " JOIN employee_skills es ON es.employee_id = e.id"
         placeholders = ",".join("?" for _ in skill_list)
-        conditions.append(f"es.skill IN ({placeholders})")
+
+        conditions.append(
+            f"EXISTS (SELECT 1 FROM employee_skills es WHERE es.employee_id = e.id AND es.skill IN ({placeholders}))"
+        )
         params.extend(skill_list)
 
     if department:
