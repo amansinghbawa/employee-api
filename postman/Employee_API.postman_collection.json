@@ -1,0 +1,86 @@
+{
+  "info": {
+    "name": "Employee API - Bug Repro",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://127.0.0.1:8000" }
+  ],
+  "item": [
+    {
+      "name": "Health check",
+      "request": { "method": "GET", "url": "{{baseUrl}}/health" }
+    },
+    {
+      "name": "All employees",
+      "request": { "method": "GET", "url": "{{baseUrl}}/employees" }
+    },
+    {
+      "name": "BUG - Duplicates: skills=Python,SQL",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/employees?skills=Python,SQL",
+          "host": ["{{baseUrl}}"],
+          "path": ["employees"],
+          "query": [{ "key": "skills", "value": "Python,SQL" }]
+        }
+      }
+    },
+    {
+      "name": "Valid - Engineering with Python",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/employees?department=Engineering&skills=Python",
+          "host": ["{{baseUrl}}"],
+          "path": ["employees"],
+          "query": [
+            { "key": "department", "value": "Engineering" },
+            { "key": "skills", "value": "Python" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "BUG - Invalid input: min_salary=abc",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/employees?min_salary=abc",
+          "host": ["{{baseUrl}}"],
+          "path": ["employees"],
+          "query": [{ "key": "min_salary", "value": "abc" }]
+        }
+      }
+    },
+    {
+      "name": "BUG - Invalid input: min_salary=-5000",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/employees?min_salary=-5000",
+          "host": ["{{baseUrl}}"],
+          "path": ["employees"],
+          "query": [{ "key": "min_salary", "value": "-5000" }]
+        }
+      }
+    },
+    {
+      "name": "No match - department=Legal",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/employees?department=Legal",
+          "host": ["{{baseUrl}}"],
+          "path": ["employees"],
+          "query": [{ "key": "department", "value": "Legal" }]
+        }
+      }
+    },
+    {
+      "name": "Get employee by id",
+      "request": { "method": "GET", "url": "{{baseUrl}}/employees/1" }
+    }
+  ]
+}
